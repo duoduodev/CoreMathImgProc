@@ -1,0 +1,125 @@
+entity Event {
+	status Status required,
+    topic Topic required,
+	start Instant required,
+    end Instant required,
+	title String required,
+    adress String required,
+    city City required,
+    summary String required,
+    image1 ImageBlob,
+    image2 ImageBlob,
+    image3 ImageBlob
+}
+
+entity Newsfeed {
+	status Status required,
+	when Instant required,
+	title String required,
+    city City required,
+    url String required,
+    summary String required,
+    image1 ImageBlob,
+    image2 ImageBlob,
+    image3 ImageBlob,
+    read Integer required
+    
+}
+
+entity Blogfeed {
+    status Status required,
+	when Instant required,
+    url String required,
+	title String required,
+    summary String required,
+    blog String required,
+    attachment AnyBlob,
+    image1 ImageBlob,
+    image2 ImageBlob,
+    image3 ImageBlob,
+    topic  Topic required,
+    read Integer required
+}
+
+entity Comment {
+	when Instant required,
+	body String required
+}
+
+entity Questionnaire {
+	status Status required,
+	when Instant required,
+	title String required,
+    summary String required,
+    image1 ImageBlob,
+    image2 ImageBlob,
+    image3 ImageBlob,
+    tag String required maxlength(16),
+    read Integer required
+}
+
+entity OptionTextQuestion {
+	question String required,
+    option1 String required,
+    option2 String required,
+    option3 String,
+    option4 String,
+    image ImageBlob,
+    answer Integer required min(1) max(4)
+}
+
+entity OptionImageQuestion {
+	question String required,
+    option1 ImageBlob,
+    option2 ImageBlob,
+    option3 ImageBlob,
+    option4 ImageBlob,
+    image ImageBlob,
+    answer Integer required min(1) max(4),
+}
+
+entity TextQuestion {
+	question String required,
+    body String required,
+    image1 ImageBlob,
+    image2 ImageBlob,
+    image3 ImageBlob
+}
+
+enum City {
+    NEWYORK, WASHINGTONDC, SEATTLE, BEIJING, SHANGHAI, SHENZHEN
+}
+
+enum Topic {
+    MATHSTAT, MACHLEARN, CSPROG
+}
+
+enum Status {
+	PENDING, APPROVED, DISAPPROVED
+}
+
+// defining multiple OneToMany relationships with comments
+relationship OneToMany {
+	Event{comment} to Comment,
+	Newsfeed{comment} to Comment,
+	Blogfeed{comment} to Comment,
+    Questionnaire{optionTextQuestion} to OptionTextQuestion,
+    Questionnaire{optionImageQuestion} to OptionImageQuestion,
+    Questionnaire{textQuestion} to TextQuestion,
+}
+
+relationship ManyToOne {
+	Event{user(login)} to User,
+	Newsfeed{user(login)} to User,
+	Blogfeed{user(login)} to User,
+    Questionnaire{user(login)} to User,
+    OptionTextQuestion{user(login)} to User,
+    OptionImageQuestion{user(login)} to User,
+    TextQuestion{user(login)} to User,
+    Comment{user(login)} to User
+}
+
+// Set pagination options
+paginate Newsfeed, Blogfeed with infinite-scroll
+paginate Questionnaire, Event with pagination
+
